@@ -37,13 +37,13 @@ const MovieDetails = () => {
         <img
           src={movie.Poster !== "N/A" ? movie.Poster : "https://via.placeholder.com/300x450"}
           alt={movie.Title}
-          className="w-full h-96 object-cover"
+          className="w-full h-96 object-contain" // Fixed height and aspect ratio
         />
         <div className="p-6">
           <h1 className="text-3xl font-bold mb-2">{movie.Title}</h1>
           <p className="text-gray-600 mb-4">{movie.Year}</p>
           <p className="text-gray-700 mb-4">{movie.Plot}</p>
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-4 mb-6">
             <span className="bg-blue-500 text-white px-3 py-1 rounded-full">
               IMDB Rating: {movie.imdbRating}
             </span>
@@ -51,12 +51,22 @@ const MovieDetails = () => {
               Released: {movie.Released}
             </span>
           </div>
-          <div className="mt-4">
-            <h2 className="text-xl font-semibold mb-2">Details</h2>
-            <p><strong>Genre:</strong> {movie.Genre}</p>
-            <p><strong>Director:</strong> {movie.Director}</p>
-            <p><strong>Actors:</strong> {movie.Actors}</p>
-            <p><strong>Runtime:</strong> {movie.Runtime}</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <h2 className="text-xl font-semibold mb-2">Details</h2>
+              <p><strong>Genre:</strong> {movie.Genre}</p>
+              <p><strong>Director:</strong> {movie.Director}</p>
+              <p><strong>Actors:</strong> {movie.Actors}</p>
+              <p><strong>Runtime:</strong> {movie.Runtime}</p>
+              <p><strong>Languages:</strong> {movie.Language}</p>
+            </div>
+            <div>
+              {/* <h2 className="text-xl font-semibold mb-2">Additional Info</h2> */}
+              <p><strong>Rated:</strong> {movie.Rated}</p>
+              <p><strong>Box Office:</strong> {movie.BoxOffice}</p>
+              <p><strong>Country:</strong> {movie.Country}</p>
+              <p><strong>Awards:</strong> {movie.Awards}</p>
+            </div>
           </div>
         </div>
       </div>
