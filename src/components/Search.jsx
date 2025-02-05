@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
-const Search = ({ onSearch }) => {
+const Search = () => {
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState([]);
+  const navigate = useNavigate(); // Hook for navigation
 
   useEffect(() => {
     if (query.length > 2) {
@@ -26,14 +28,23 @@ const Search = ({ onSearch }) => {
     }
   }, [query]);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onSearch(query);
+  const handleSuggestionClick = (imdbID) => {
+    navigate(`/movie/${imdbID}`); // Navigate to the movie details page
+    setQuery(""); // Clear the search query
+    setSuggestions([]); // Clear suggestions
   };
 
   return (
     <div className="relative">
-      <form onSubmit={handleSubmit} className="flex justify-center my-4">
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (suggestions.length > 0) {
+            handleSuggestionClick(suggestions[0].imdbID); // Navigate to the first suggestion
+          }
+        }}
+        className="flex justify-center my-4"
+      >
         <input
           type="text"
           value={query}
@@ -51,17 +62,13 @@ const Search = ({ onSearch }) => {
 
       {/* Suggestions Slider */}
       {suggestions.length > 0 && (
-        <div className="absolute top-full left-0 right-0 bg-blue-300 shadow-lg rounded-lg mt-2 z-10">
-          <div className="flex overflow-x-auto p-4 space-x-4">
+        <div className="absolute top-full left-0 right-0 bg-white shadow-lg rounded-lg mt-2 z-10">
+          <div className="flex overflow-x-auto p-4 space-x-4 suggestions-slider">
             {suggestions.map((movie) => (
               <div
                 key={movie.imdbID}
                 className="flex-shrink-0 w-40 cursor-pointer"
-                onClick={() => {
-                  setQuery(movie.Title); // Fill the search box with the selected movie title
-                  setSuggestions([]); // Clear suggestions
-                  onSearch(movie.Title); // Trigger search
-                }}
+                onClick={() => handleSuggestionClick(movie.imdbID)} // Navigate to movie details
               >
                 <img
                   src={movie.Poster !== "N/A" ? movie.Poster : "https://via.placeholder.com/150x225"}
