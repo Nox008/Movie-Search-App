@@ -5,27 +5,58 @@ const MovieDetails = () => {
   const { id } = useParams(); // Get the movie ID from the URL
   const [movie, setMovie] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchMovieDetails = async () => {
       const apiKey = import.meta.env.VITE_OMDB_API_KEY;
-      const response = await fetch(
-        `https://www.omdbapi.com/?i=${id}&apikey=${apiKey}`
-      );
-      const data = await response.json();
-      setMovie(data);
-      setLoading(false);
+      try {
+        const response = await fetch(
+          `https://www.omdbapi.com/?i=${id}&apikey=${apiKey}`
+        );
+        const data = await response.json();
+        if (data.Response === "True") {
+          setMovie(data);
+        } else {
+          setError("Movie not found.");
+        }
+      } catch (err) {
+        setError("An error occurred while fetching movie details.");
+      } finally {
+        setLoading(false);
+      }
     };
 
+    // Set a timeout for 1 minute (60000 ms)
+    const timeoutId = setTimeout(() => {
+      setError("Loading took too long. Please try again.");
+      setLoading(false);
+    }, 60000);
+
     fetchMovieDetails();
+
+    // Clear the timeout if the component unmounts or the fetch completes
+    return () => clearTimeout(timeoutId);
   }, [id]);
 
   if (loading) {
-    return <p className="text-center text-xl my-8">Loading...</p>;
+    return (
+      <div className="loading-container">
+        <div className="loader"></div>
+        <p className="loading-text">Loading movie details...</p>
+      </div>
+    );
   }
 
-  if (!movie) {
-    return <p className="text-center text-red-500 text-xl my-8">Movie not found.</p>;
+  if (error) {
+    return (
+      <div className="text-center my-8">
+        <p className="text-red-500 text-xl">{error}</p>
+        <Link to="/" className="text-blue-500 hover:underline mt-4 block">
+          &larr; Back to Home
+        </Link>
+      </div>
+    );
   }
 
   return (
@@ -37,7 +68,7 @@ const MovieDetails = () => {
         <img
           src={movie.Poster !== "N/A" ? movie.Poster : "https://via.placeholder.com/300x450"}
           alt={movie.Title}
-          className="w-full h-96 object-contain" // Fixed height and aspect ratio
+          className="w-full h-96 object-contain"
         />
         <div className="p-6">
           <h1 className="text-3xl font-bold mb-2">{movie.Title}</h1>
@@ -61,7 +92,7 @@ const MovieDetails = () => {
               <p><strong>Languages:</strong> {movie.Language}</p>
             </div>
             <div>
-              {/* <h2 className="text-xl font-semibold mb-2">Additional Info</h2> */}
+              <h2 className="text-xl font-semibold mb-2">Additional Info</h2>
               <p><strong>Rated:</strong> {movie.Rated}</p>
               <p><strong>Box Office:</strong> {movie.BoxOffice}</p>
               <p><strong>Country:</strong> {movie.Country}</p>

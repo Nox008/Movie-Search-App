@@ -1,1 +1,55 @@
 @import "tailwindcss";
+
+/* Custom Loading Animation */
+@keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+  
+  .loader {
+    border: 8px solid #f3f3f3; /* Light grey */
+    border-top: 8px solid #3498db; /* Blue */
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto;
+  }
+  
+  .loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+  }
+  
+  .loading-text {
+    margin-top: 16px;
+    font-size: 1.25rem;
+    color: #3498db;
+  }
+
+  /* Suggestions Slider Styles */
+.suggestions-slider {
+    scrollbar-width: thin;
+    scrollbar-color: #3498db #f3f3f3;
+  }
+  
+  .suggestions-slider::-webkit-scrollbar {
+    height: 8px;
+  }
+  
+  .suggestions-slider::-webkit-scrollbar-track {
+    background: #f3f3f3;
+    border-radius: 4px;
+  }
+  
+  .suggestions-slider::-webkit-scrollbar-thumb {
+    background: #3498db;
+    border-radius: 4px;
+  }
