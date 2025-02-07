@@ -16,7 +16,7 @@ const Search = () => {
         );
         const data = await response.json();
         if (data.Search) {
-          setSuggestions(data.Search.slice(0, 8)); // Show only the first 5 suggestions
+          setSuggestions(data.Search.slice(0, 20)); // Show up to 20 suggestions
         } else {
           setSuggestions([]);
         }
@@ -60,14 +60,14 @@ const Search = () => {
         </button>
       </form>
 
-      {/* Suggestions Slider */}
+      {/* Suggestions Grid */}
       {suggestions.length > 0 && (
-        <div className="absolute top-full left-0 right-0 bg-white shadow-lg rounded-lg mt-2 z-10">
-          <div className="flex overflow-x-auto p-4 space-x-4 suggestions-slider">
+        <div className="absolute top-full left-0 right-0 bg-white shadow-lg rounded-lg mt-2 z-10 p-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 lg:grid-cols-10 gap-4">
             {suggestions.map((movie) => (
               <div
                 key={movie.imdbID}
-                className="flex-shrink-0 w-40 cursor-pointer"
+                className="cursor-pointer"
                 onClick={() => handleSuggestionClick(movie.imdbID)} // Navigate to movie details
               >
                 <img
