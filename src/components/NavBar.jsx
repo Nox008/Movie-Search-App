@@ -34,7 +34,7 @@ const Navbar = () => {
   ];
 
   const navItems = [
-    { name: 'Search', icon: Search, href: '#search' },
+    { name: 'Search', icon: Search, href: '/' },
     { name: 'Bookmarks', icon: Bookmark, href: '#bookmarks' },
     { name: 'Profile', icon: User, href: '#profile' }
   ];
