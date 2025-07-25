@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Menu, X, Sun, Moon, Leaf, Search, Bookmark, User, LogIn } from 'lucide-react';
+import AuthModal from './Auth';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [theme, setTheme] = useState('light');
   const [isScrolled, setIsScrolled] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [authMode, setAuthMode] = useState('login'); // 'login' or 'signup'
 
   // Handle scroll effect with throttling for better performance
   useEffect(() => {
@@ -41,6 +44,12 @@ const Navbar = () => {
 
   return (
     <>
+      {showAuthModal && (
+        <AuthModal 
+          initialMode={authMode} 
+          onClose={() => setShowAuthModal(false)} 
+        />
+      )}
       <nav className={`
         fixed top-0 w-full z-50 transition-all duration-500 ease-out
         ${isScrolled 
@@ -118,7 +127,7 @@ const Navbar = () => {
               </div>
 
               {/* Auth Buttons */}
-              <div className="flex items-center space-x-2">
+             {/*  <div className="flex items-center space-x-2">
                 <button className="flex items-center px-4 py-2 text-sm font-medium 
                                  text-[rgb(var(--text-secondary))] hover:text-[rgb(var(--text-primary))]
                                  hover:bg-[rgb(var(--bg-secondary))] rounded-lg transition-all duration-200
@@ -134,8 +143,37 @@ const Navbar = () => {
                   <User className="w-4 h-4 mr-2 transition-transform duration-200 group-hover:rotate-12" />
                   Sign Up
                 </button>
-              </div>
+              </div> */}
             </div>
+
+            {/* Desktop Auth Buttons */}
+              <div className="flex items-center space-x-2">
+                <button 
+                  onClick={() => {
+                    setAuthMode('login');
+                    setShowAuthModal(true);
+                  }}
+                  className="flex items-center px-4 py-2 text-sm font-medium 
+                            text-[rgb(var(--text-secondary))] hover:text-[rgb(var(--text-primary))]
+                            hover:bg-[rgb(var(--bg-secondary))] rounded-lg transition-all duration-200
+                            group">
+                  <LogIn className="w-4 h-4 mr-2 transition-transform duration-200 group-hover:scale-110" />
+                  Login
+                </button>
+                <button 
+                  onClick={() => {
+                    setAuthMode('signup');
+                    setShowAuthModal(true);
+                  }}
+                  className="flex items-center px-4 py-2 text-sm font-medium 
+                            bg-[rgb(var(--accent))] hover:bg-[rgb(var(--accent-hover))]
+                            text-white rounded-lg transition-all duration-200 
+                            transform hover:scale-105 hover:shadow-lg
+                            active:scale-95 group">
+                  <User className="w-4 h-4 mr-2 transition-transform duration-200 group-hover:rotate-12" />
+                  Sign Up
+                </button>
+              </div>
 
             {/* Mobile menu button */}
             <div className="md:hidden">
