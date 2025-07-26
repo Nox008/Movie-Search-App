@@ -82,6 +82,7 @@ const AuthModal = ({ onClose, initialMode = 'login' }) => {
         // Store token in localStorage or context
         localStorage.setItem('authToken', response.data.token);
         // Close modal after delay or redirect
+        localStorage.setItem('user', JSON.stringify(response.data.user)); 
         setTimeout(() => {
           onClose();
           window.location.reload(); // Or use router to navigate
