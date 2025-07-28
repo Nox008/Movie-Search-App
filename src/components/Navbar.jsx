@@ -60,7 +60,7 @@ const Navbar = () => {
 
   const navItems = [
     { name: 'Search', icon: Search, href: '/' },
-    { name: 'Bookmarks', icon: Bookmark, href: '#bookmarks' },
+    { name: 'Bookmarks', icon: Bookmark, href: '/bookmarks' },
     { name: 'Profile', icon: User, href: '/profile' }
   ];
 

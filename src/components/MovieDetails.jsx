@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { 
-  ArrowLeft, Star, Calendar, Clock, Film, Users, Languages, Award, Clapperboard, DollarSign 
+  ArrowLeft, Star, Calendar, Clock, Film, Users, Languages, Award, 
+  Clapperboard, DollarSign, Bookmark, BookmarkCheck 
 } from 'lucide-react';
 
 // A small helper component for displaying detail items
@@ -20,6 +21,38 @@ const MovieDetails = () => {
   const [movie, setMovie] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isBookmarked, setIsBookmarked] = useState(false);
+  const [bookmarkLoading, setBookmarkLoading] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  // Check authentication status
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    setIsAuthenticated(!!token);
+  }, []);
+
+  // Check if movie is bookmarked
+  const checkBookmarkStatus = async () => {
+    if (!isAuthenticated || !id) return;
+    
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`http://localhost:5000/api/bookmarks/check/${id}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          setIsBookmarked(data.isBookmarked);
+        }
+      }
+    } catch (error) {
+      console.error('Error checking bookmark status:', error);
+    }
+  };
 
   useEffect(() => {
     // Scroll to top when the component mounts
@@ -47,7 +80,68 @@ const MovieDetails = () => {
     };
 
     fetchMovieDetails();
-  }, [id]);
+    checkBookmarkStatus();
+  }, [id, isAuthenticated]);
+
+  const handleBookmark = async () => {
+    if (!isAuthenticated) {
+      alert('Please log in to bookmark movies');
+      return;
+    }
+
+    if (!movie) return;
+
+    setBookmarkLoading(true);
+    const token = localStorage.getItem('token');
+
+    try {
+      if (isBookmarked) {
+        // Remove bookmark
+        const response = await fetch(`http://localhost:5000/api/bookmarks/${id}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (response.ok) {
+          setIsBookmarked(false);
+        } else {
+          const data = await response.json();
+          alert(data.message || 'Failed to remove bookmark');
+        }
+      } else {
+        // Add bookmark
+        const response = await fetch('http://localhost:5000/api/bookmarks', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            movieId: id,
+            title: movie.Title,
+            poster: movie.Poster !== "N/A" ? movie.Poster : '',
+            year: movie.Year,
+            imdbRating: movie.imdbRating,
+            genre: movie.Genre
+          })
+        });
+
+        if (response.ok) {
+          setIsBookmarked(true);
+        } else {
+          const data = await response.json();
+          alert(data.message || 'Failed to add bookmark');
+        }
+      }
+    } catch (error) {
+      console.error('Bookmark error:', error);
+      alert('An error occurred while updating bookmark');
+    } finally {
+      setBookmarkLoading(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -106,9 +200,35 @@ const MovieDetails = () => {
 
           {/* Right Column: Details */}
           <div className="lg:col-span-2">
-            <h1 className="text-4xl md:text-5xl font-bold font-[var(--font-display)] text-[rgb(var(--text-primary))]">
-              {movie.Title}
-            </h1>
+            <div className="flex items-start justify-between">
+              <h1 className="text-4xl md:text-5xl font-bold font-[var(--font-display)] text-[rgb(var(--text-primary))] flex-1">
+                {movie.Title}
+              </h1>
+              
+              {/* Bookmark Button */}
+              {isAuthenticated && (
+                <button
+                  onClick={handleBookmark}
+                  disabled={bookmarkLoading}
+                  className={`ml-4 p-3 rounded-xl border-2 transition-all duration-200 
+                             transform hover:scale-105 active:scale-95 disabled:opacity-50 
+                             disabled:cursor-not-allowed ${
+                    isBookmarked 
+                      ? 'bg-[rgb(var(--accent))] border-[rgb(var(--accent))] text-white' 
+                      : 'bg-transparent border-[rgb(var(--border))] text-[rgb(var(--text-primary))] hover:border-[rgb(var(--accent))] hover:text-[rgb(var(--accent))]'
+                  }`}
+                  title={isBookmarked ? 'Remove from bookmarks' : 'Add to bookmarks'}
+                >
+                  {bookmarkLoading ? (
+                    <div className="w-6 h-6 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                  ) : isBookmarked ? (
+                    <BookmarkCheck className="w-6 h-6" />
+                  ) : (
+                    <Bookmark className="w-6 h-6" />
+                  )}
+                </button>
+              )}
+            </div>
             
             {/* Meta Info Tags */}
             <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-4 text-sm text-[rgb(var(--text-secondary))]">
