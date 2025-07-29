@@ -22,7 +22,7 @@ const Bookmarks = () => {
     setError(null);
     
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('authToken');
       if (!token) {
         setError('Please log in to view your bookmarks');
         setLoading(false);
@@ -31,7 +31,8 @@ const Bookmarks = () => {
 
       const response = await fetch('http://localhost:5000/api/bookmarks', {
         headers: {
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
         }
       });
 
@@ -43,8 +44,8 @@ const Bookmarks = () => {
           setError(data.message || 'Failed to fetch bookmarks');
         }
       } else if (response.status === 401) {
-        setError('Please log in to view your bookmarks');
-        localStorage.removeItem('token'); // Remove invalid token
+        setError('Session expired. Please log in again.');
+        localStorage.removeItem('authToken'); // Remove invalid token
       } else {
         setError('Failed to fetch bookmarks');
       }
@@ -62,16 +63,25 @@ const Bookmarks = () => {
     setDeleteLoading(movieId);
     
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        alert('Please log in to manage bookmarks');
+        return;
+      }
+
       const response = await fetch(`http://localhost:5000/api/bookmarks/${movieId}`, {
         method: 'DELETE',
         headers: {
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
         }
       });
 
       if (response.ok) {
         setBookmarks(prev => prev.filter(bookmark => bookmark.movieId !== movieId));
+      } else if (response.status === 401) {
+        alert('Session expired. Please log in again.');
+        localStorage.removeItem('authToken');
       } else {
         const data = await response.json();
         alert(data.message || 'Failed to remove bookmark');

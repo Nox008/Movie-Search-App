@@ -27,7 +27,7 @@ const MovieDetails = () => {
 
   // Check authentication status
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('authToken');
     setIsAuthenticated(!!token);
   }, []);
 
@@ -36,10 +36,16 @@ const MovieDetails = () => {
     if (!isAuthenticated || !id) return;
     
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        setIsAuthenticated(false);
+        return;
+      }
+
       const response = await fetch(`http://localhost:5000/api/bookmarks/check/${id}`, {
         headers: {
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
         }
       });
       
@@ -48,6 +54,11 @@ const MovieDetails = () => {
         if (data.success) {
           setIsBookmarked(data.isBookmarked);
         }
+      } else if (response.status === 401) {
+        // Token is invalid, clear it
+        localStorage.removeItem('authToken');
+        setIsAuthenticated(false);
+        console.log('Token invalid, please log in again');
       }
     } catch (error) {
       console.error('Error checking bookmark status:', error);
@@ -92,7 +103,14 @@ const MovieDetails = () => {
     if (!movie) return;
 
     setBookmarkLoading(true);
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('authToken');
+
+    if (!token) {
+      alert('Please log in to bookmark movies');
+      setIsAuthenticated(false);
+      setBookmarkLoading(false);
+      return;
+    }
 
     try {
       if (isBookmarked) {
@@ -100,12 +118,17 @@ const MovieDetails = () => {
         const response = await fetch(`http://localhost:5000/api/bookmarks/${id}`, {
           method: 'DELETE',
           headers: {
-            'Authorization': `Bearer ${token}`
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
           }
         });
 
         if (response.ok) {
           setIsBookmarked(false);
+        } else if (response.status === 401) {
+          localStorage.removeItem('token');
+          setIsAuthenticated(false);
+          alert('Session expired. Please log in again.');
         } else {
           const data = await response.json();
           alert(data.message || 'Failed to remove bookmark');
@@ -130,6 +153,10 @@ const MovieDetails = () => {
 
         if (response.ok) {
           setIsBookmarked(true);
+        } else if (response.status === 401) {
+          localStorage.removeItem('token');
+          setIsAuthenticated(false);
+          alert('Session expired. Please log in again.');
         } else {
           const data = await response.json();
           alert(data.message || 'Failed to add bookmark');

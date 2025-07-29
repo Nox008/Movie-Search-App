@@ -4,13 +4,14 @@ import React, { useState, useEffect } from 'react';
 // ⬇️ Add LogOut to the import
 import { Menu, X, Sun, Moon, Leaf, Search, Bookmark, User, LogIn, LogOut } from 'lucide-react';
 import AuthModal from './Auth';
+import { useTheme } from '../context/ThemeContext';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [theme, setTheme] = useState('light');
   const [isScrolled, setIsScrolled] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState('login');
+  const { theme, themes, changeTheme } = useTheme();
   // ⬇️ Add state to hold the authenticated user
   const [user, setUser] = useState(null);
 
@@ -51,12 +52,6 @@ const Navbar = () => {
     setUser(null);
     window.location.reload(); // Reload to clear all state
   };
-
-  const themes = [
-    { name: 'light', icon: Sun, label: 'Light' },
-    { name: 'dark', icon: Moon, label: 'Dark' },
-    { name: 'viridian', icon: Leaf, label: 'Viridian' }
-  ];
 
   const navItems = [
     { name: 'Search', icon: Search, href: '/' },
@@ -130,7 +125,7 @@ const Navbar = () => {
                   return (
                     <button
                       key={themeOption.name}
-                      onClick={() => setTheme(themeOption.name)}
+                      onClick={() => changeTheme(themeOption.name)}
                       className={`
                         p-2 rounded-md transition-all duration-200 relative group
                         ${theme === themeOption.name 
